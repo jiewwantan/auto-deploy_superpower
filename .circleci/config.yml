@@ -4,6 +4,7 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
+      exit 1
       # Add parameter here   
     steps:
       - run:
@@ -16,11 +17,13 @@ commands:
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
+      exit 1
       # Add parameter here     
     steps:
       - run:
           name: Revert migrations
           # Add when this will run
+            exit 1
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SUCCESS = 1
@@ -71,40 +74,50 @@ jobs:
 
   test-frontend:
     docker:
+      exit 1
       # Docker image here
     steps:
+      exit 1
       # Checkout code from git
       # Restore from cache
       # Your job code here
                 
   test-backend:
     docker:
+      exit 1
       # Docker image here
     steps:
+      exit 1
       # Checkout code from git
       # Restore from cache
       # Your job code here
             
   scan-frontend:
     docker:
+      exit 1
       # Docker image here
     steps:
+      exit 1
       # Checkout code from git
       # Restore from cache
       # Your job code here
 
   scan-backend:
     docker:
+      exit 1
       # Docker image here
     steps:
+      exit 1
       # Checkout code from git
       # Restore from cache
       # Your job code here
 
   deploy-infrastructure:
     docker:
+      exit 1
       # Docker image here that supports AWS CLI
     steps:
+      exit 1
       # Checkout code from git
       - run:
           name: Ensure back-end infrastructure exists
@@ -127,6 +140,7 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
+            exit 1
             # Your code here
             exit 1
       - persist_to_workspace:
@@ -137,11 +151,13 @@ jobs:
 
   configure-infrastructure:
     docker:
+      exit 1
       # Docker image here that supports Ansible
     steps:
       # Checkout code from git
       # Add ssh keys with fingerprint
       # attach workspace
+      exit 1
       - run:
           name: Install dependencies
           command: |
@@ -180,6 +196,7 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
+            exit 1
       - run:
           name: Get backend url
           command: |
@@ -190,6 +207,7 @@ jobs:
           name: Deploy frontend objects
           command: |
             # your code here
+            exit 1
       # Here's where you will add some code to rollback on failure      
                     
   deploy-backend:
@@ -203,10 +221,12 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
+            exit 1
       - run:
           name: Deploy backend
           command: |
             # your code here
+            exit 1
       # Here's where you will add some code to rollback on failure  
 
   smoke-test:
@@ -218,18 +238,22 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
+            exit 1
       - run:
           name: Get backend url
           command: |
             # your code here
+            exit 1
       - run:
           name: Backend smoke test.
           command: |
             # your code here
+            exit 1
       - run:
           name: Frontend smoke test.
           command: |
             # your code here
+            exit 1
       # Here's where you will add some code to rollback on failure  
 
   cloudfront-update:
@@ -241,10 +265,12 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
+            exit 1
       - run:
           name: Update cloudfront distribution
           command: |
             # your code here
+            exit 1
       # Here's where you will add some code to rollback on failure  
 
 cleanup:
