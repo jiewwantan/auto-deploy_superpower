@@ -155,7 +155,6 @@ jobs:
       # Checkout code from git
       # Add ssh keys with fingerprint
       # attach workspace
-      exit 1
       - run:
           name: Install dependencies
           command: |
