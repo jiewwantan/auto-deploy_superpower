@@ -113,10 +113,9 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      exit 1
+      - image: circleci/node:13.8.0
       # Docker image here that supports AWS CLI
     steps:
-      exit 1
       # Checkout code from git
       - run:
           name: Ensure back-end infrastructure exists
