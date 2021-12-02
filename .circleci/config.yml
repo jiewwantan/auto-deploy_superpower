@@ -76,6 +76,7 @@ jobs:
   test-frontend:
     docker:
       exit 1
+      - image: circleci/node:13.8.0
       # Docker image here
     steps:
       exit 1
@@ -85,8 +86,8 @@ jobs:
                 
   test-backend:
     docker:
-      exit 1
       # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       exit 1
       # Checkout code from git
@@ -95,8 +96,8 @@ jobs:
             
   scan-frontend:
     docker:
-      exit 1
       # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       exit 1
       # Checkout code from git
@@ -172,6 +173,7 @@ jobs:
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       - run:
@@ -233,6 +235,7 @@ jobs:
   smoke-test:
     docker:
       # Lightweight Docker image 
+      - image: python:3.7-alpine3.11
     steps:
       # Checkout code from git
       - run:
