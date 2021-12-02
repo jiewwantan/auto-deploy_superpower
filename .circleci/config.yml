@@ -258,6 +258,7 @@ jobs:
   cloudfront-update:
     docker:
       # Docker image here that supports AWS CLI
+      - image: python:3.7-alpine3.11
     steps:
       # Checkout code from git
       - run:
