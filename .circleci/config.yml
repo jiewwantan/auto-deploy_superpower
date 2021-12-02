@@ -189,6 +189,7 @@ jobs:
   deploy-frontend:
     docker:
       # Docker image here that supports AWS CLI
+      - image: circleci/python:3.8.2
     steps:
       # Checkout code from git
       - run:
