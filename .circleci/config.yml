@@ -197,7 +197,7 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure
-      
+
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"    
    
@@ -277,8 +277,8 @@ jobs:
               curl -H "Content-Type: text/plain" -H "token: 6ff40751-836c-4e98-b13c-7021849ccfe5" --request PUT --data "" https://api.memstash.io/values/run_migration_${CIRCLE_WORKFLOW_ID:0:7}
             fi
      # Here's where you will add some code to rollback on failure
-      - destroy-environment:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"      
+      #- destroy-environment:
+      #    workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"      
 
   deploy-frontend:
     docker:
