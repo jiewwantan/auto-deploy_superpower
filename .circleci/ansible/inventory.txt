@@ -1,1 +1,2 @@
 [web]
+ec2-3-19-232-220.us-east-2.compute.amazonaws.com

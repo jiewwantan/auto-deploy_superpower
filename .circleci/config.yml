@@ -206,19 +206,31 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       # Checkout code from git
+      - checkout
       # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints: ["ed:42:1e:ef:82:9b:e6:23:7a:2c:3a:48:e8:e5:1f:b2"]
       # attach workspace
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
             # Your code here
-            exit 1
+            # exit 1
+            apk add --update tar gzip ansible nodejs npm
+            pip install awscli
       - run:
           name: Configure server
           command: |
             # Your code here
-            exit 1
-      # Here's where you will add some code to rollback on failure      
+            # exit 1
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
+      # Here's where you will add some code to rollback on failure  
+
+      - destroy-environment:
+        workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"      
 
   run-migrations:
     docker:
@@ -226,17 +238,46 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
+      - checkout
+      # Restore Cache from backend-build
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Run migrations
           command: |
             # Your code here
-            exit 1
+            # exit 1
+            echo ENVIRONMENT=production >> "backend/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+            cd backend
+            npm install
+    
+            cat .env
+            echo 'something' > memstash.txt
+            npm run migrations >> memstash.txt
+            pwd
+            ls -la            
+            cat memstash.txt
       - run:
           name: Send migration results to memstash
           command: |
             # Your code here
-            exit 1
-     # Here's where you will add some code to rollback on failure      
+            # exit 1
+            if grep -q "has been executed successfully." ~/project/backend/memstash.txt
+            then
+              curl -H "Content-Type: text/plain" -H "token: 6ff40751-836c-4e98-b13c-7021849ccfe5" --request PUT --data "" https://api.memstash.io/values/run_migration_${CIRCLE_WORKFLOW_ID:0:7}
+            fi
+     # Here's where you will add some code to rollback on failure
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"      
 
   deploy-frontend:
     docker:
@@ -244,23 +285,39 @@ jobs:
       - image: circleci/python:3.8.2
     steps:
       # Checkout code from git
+      - checkout
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
             # your code here
-            exit 1
+            sudo apt-get update
+            sudo apt-get install tar gzip ansible nodejs npm
+            pip install awscli
       - run:
           name: Get backend url
           command: |
             # your code here
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
       - run:
           name: Deploy frontend objects
           command: |
             # your code here
-            exit 1
-      # Here's where you will add some code to rollback on failure      
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      # Here's where you will add some code to rollback on failure
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"        
+      - revert-migrations:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"      
                     
   deploy-backend:
     docker:
@@ -268,19 +325,32 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       # Checkout code from git
+      - checkout
       # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints: [""]
       # attach workspace
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
             # your code here
-            exit 1
+            apk add --update tar gzip ansible curl
+            pip install awscli
       - run:
           name: Deploy backend
           command: |
             # your code here
-            exit 1
-      # Here's where you will add some code to rollback on failure  
+            tar -C backend -czvf artifact.tar.gz .
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      # Here's where you will add some code to rollback on failure
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"        
+      - revert-migrations:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"    
 
   smoke-test:
     docker:
