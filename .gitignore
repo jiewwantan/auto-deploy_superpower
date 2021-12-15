@@ -68,3 +68,7 @@ node_modules
 
 .env
 dist
+
+.circleci/qiuwen_udacity.pem
+.circleci/ssh_key
+ssh_key.pub
