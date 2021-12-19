@@ -267,7 +267,7 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
-            sudo apt-get update
+            # sudo apt-get update
             # sudo apt-get install tar gzip ansible nodejs npm
             apk add --update ansible
             # pip install awscli
