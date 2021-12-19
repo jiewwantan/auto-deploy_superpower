@@ -245,13 +245,12 @@ jobs:
             npm install
             npm run build
             npm run migrations > runMigrations.log
-            if [ 1 -eq $(grep -c "has been executed successfully" runMigrations.log) ]
+
+            if [grep -q "has been executed successfully" migration_output.log]; 
             then
-              curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" \
-                  --request PUT --data "1" https://api.memstash.io/values/migrationStatus
+              curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
             else
-              curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" \
-                  --request PUT --data "0" https://api.memstash.io/values/migrationStatus
+              curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" --request PUT --data "0" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
             fi
       # Here's where you will add some code to rollback on failure  
       - destroy-environment:
