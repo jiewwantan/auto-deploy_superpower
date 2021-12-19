@@ -30,15 +30,17 @@ commands:
       - run:
           name: Revert migrations
             # Add when this will run
+            when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SUCCESS = 1
             if(( $SUCCESS==1 )); 
             then
-            #  cd ~/project/backend
-            #  npm install
+              cd ~/project/backend
+              npm install
             #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+            # exit 1
+              npm run migration:revert
             fi
             
 jobs:
