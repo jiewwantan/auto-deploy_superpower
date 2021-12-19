@@ -261,15 +261,16 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - attach_workspace:
-          at: ~/
+      #- attach_workspace:
+      #    at: ~/
       - run:
           name: Install dependencies
           command: |
             # your code here
             sudo apt-get update
-            sudo apt-get install tar gzip ansible nodejs npm
-            pip install awscli
+            # sudo apt-get install tar gzip ansible nodejs npm
+            apk add --update ansible
+            # pip install awscli
       - run:
           name: Get backend url
           command: |
@@ -305,14 +306,15 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["ed:42:1e:ef:82:9b:e6:23:7a:2c:3a:48:e8:e5:1f:b2"]
       # attach workspace
-      - attach_workspace:
-          at: ~/
+      #- attach_workspace:
+      #    at: ~/
       - run:
           name: Install dependencies
           command: |
             # your code here
-            apk add --update tar gzip ansible curl
-            pip install awscli
+            # apk add --update tar gzip ansible curl
+            apk add --update ansible
+            # pip install awscli
       - run:
           name: Deploy backend
           command: |
