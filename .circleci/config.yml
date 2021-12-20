@@ -354,51 +354,33 @@ jobs:
 
 
   smoke-test:
-    docker:
-      # Lightweight Docker image
-      - image: python:3.7-alpine3.11 
+    executor: python
     steps:
-      # Checkout code from git
       - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: Install dependencies
+          working_directory: /tmp
           command: |
-            # your code here
-            apk add --update tar gzip curl
-            apk add --update curl #for slack notify
-            apk add --update jq #for slack notify
-            apk add --update busybox-extras #for test
-            apk add --no-cache openssl #for wget
+            apk add --update curl nodejs npm
+            pip install awscli
+      #- run:
+          #name: Backend smoke test.
+          #working_directory: ./backend
+          #command: |
+            #export BACKEND_URL=$(curl -H "token: 1e288415-cfc8-4a0a-a23c-087eb7cd7678" --request GET https://api.memstash.io/values/BACKEND_URL)
+            #sleep 30
+            #curl "$BACKEND_URL/api/status"
       - run:
-          name: install dockerize
+          name: Frontend smoke test.
+          working_directory: ./backend
           command: |
-            wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz 
-            tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-            rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-          environment:
-            DOCKERIZE_VERSION: v0.6.1
-      - run:
-          name: Get backend url and backend smoketest
-          command: |
-            # your code here
-            BACKEND_IP=$(curl -H "token: IP-${CIRCLE_WORKFLOW_ID:0:5}" \
-                       --request GET https://api.memstash.io/values/IP)
-            URL="http://$BACKEND_IP:3030/api/status"
-            echo $URL
-            # wait for pm2
-            dockerize -wait $URL -timeout 1m
-            curl $URL
-      - run:
-          name: Frontend smoke test
-          command: |
-            # your code here
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:5}.s3-website-us-west-2.amazonaws.com"
-            if curl -s ${URL} | grep "Welcome"
-            then
-              return 0
-            else
-              return 1
-            fi
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-2.amazonaws.com/index.html"
+            sleep 30
+            curl -s ${URL} | grep -q "Welcome"
+
+
       # Here's where you will add some code to rollback on failure  
       #- destroy-environment:
       #    workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"        
