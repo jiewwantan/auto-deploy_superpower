@@ -351,37 +351,51 @@ jobs:
 
   smoke-test:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: circleci/node:13.8.0
     steps:
       - checkout
-      - attach_workspace:
-            at: ~/
       - run:
           name: Install dependencies
           command: |
-            apk add --update curl nodejs npm
+            sudo apt update
+            sudo apt upgrade -y
+            sudo apt install -y curl
+            sudo apt-get install python
+            sudo apt-get install python-pip
             pip install awscli
+            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            sudo apt install nodejs
+            node --version
+            npm --version
+            aws --version
       - attach_workspace:
-            at: ~/
+          at: ~/
       - run:
-          name: Get the URL of Backend and smoke test.
+          name: Backend smoke test.
           command: |
-            BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
-            echo ${BACKEND_IP}
-            export URL="http://$BACKEND_IP:3030/api/status"
-            echo $URL
-            curl $URL
+            backendURL="$(curl -H "token: 97b12e79-5cf6-484e-ad0d-343ce93a3184" --request GET https://api.memstash.io/values/API)"
+            export API_URL="http://${backendURL}:3030"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+              echo "Backend Smoke Test Success"
+              exit 0
+            else
+              echo "Backend Smoke Test Failed"
+              exit  1
+            fi
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}".s3-website-us-east-2.amazonaws.com"
-            curl -s $URL | grep "Welcome"
-            if curl -s $URL | grep "Welcome"
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com/#/employees"
+             echo ${URL}
+            if curl -s ${URL} | grep "Welcome"
             then
-              return 0
-            else
-              return 1
-            fi
+              echo "Frontend Smoke Test Success"
+               exit 0
+             else
+              echo "Frontend Smoke Test Failed"
+               exit 1
+             fi
       # Here's where you will add some code to rollback on failure  
       #- destroy-environment:
       #    workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"        
