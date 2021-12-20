@@ -267,28 +267,32 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
-            # sudo apt-get update
-            # sudo apt-get install tar gzip ansible nodejs npm
-            apk add --update ansible
-            # pip install awscli
+            sudo apt-get install zip unzip python ansible python-pip && pip install awscli
       - run:
           name: Get backend url
           command: |
             # your code here
-            export BACKEND_IP=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text)
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text )
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
+            echo "API_URL = ${API_URL}"
+            echo ENVIRONMENT=production > frontend/.env
+            echo NODE_ENV=production >> frontend/.env
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+
       - run:
           name: Deploy frontend objects
           command: |
             # your code here
+            cd frontend
+            cat .env
+            ls -larth
             npm install
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws s3 cp .env s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} 
+      
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"        
@@ -312,23 +316,40 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
-            # apk add --update tar gzip ansible curl
-            apk add --update ansible
-            # pip install awscli
+            sudo apt-get install zip unzip python ansible python-pip && pip install awscli
       - run:
           name: Deploy backend
           command: |
             # your code here
-            tar -C backend -czvf artifact.tar.gz .
+            cd backend
+            npm i
+            npm run build
+            cd ..
+            # Zip the directory
+            tar -C backend -cf artifact.tar .
+            ls -lrth artifact.tar
+            mv artifact.tar ~/project/.circleci/ansible/roles/deploy/files
+      
+      - run:
+          name: Deploy backend ansible
+          command: |           
             cd .circleci/ansible
-            cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt 
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.txt deploy-backend.yml -vv
+      - run:
+          name: Install Prometheus 
+          command: |           
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt 
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.txt deploy-Prometheus.yml -vv
+
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"        
       - revert-migrations:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"    
-
 
   smoke-test:
     docker:
