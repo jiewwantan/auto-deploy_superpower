@@ -290,7 +290,7 @@ jobs:
             npm install
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp --recursive dist s3://udapeople-kk1j287dhjlpsz4172
+            aws s3 cp --recursive dist s3://udapeople-<< parameters.workflow_id >>
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"        
