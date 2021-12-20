@@ -314,6 +314,7 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
+            npm install pm2
             apk add --update ansible
             apk add --update tar gzip nodejs npm
             apk add --update openssh-client
