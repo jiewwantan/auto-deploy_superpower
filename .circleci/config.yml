@@ -361,7 +361,7 @@ jobs:
       - run:
           name: Smoke test backend
           command: |
-            export BACKEND_IP=$(aws ec2 --region us-east-1 describe-instances \
+            export BACKEND_IP=$(aws ec2 --region us-east-2 describe-instances \
                   --filters Name=instance-state-name,Values=running Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7} \
                   --query 'Reservations[*].Instances[*].PublicIpAddress' \
                   --output text)
@@ -376,8 +376,8 @@ jobs:
           name: Smoke test frontend
           command: |
             pwd
-            APP_URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employee"
-            curl -s http://udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employee
+            APP_URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-2.amazonaws.com/#/employee"
+            curl -s http://udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-2.amazonaws.com/#/employee
       
       # Here's where you will add some code to rollback on failure  
       #- destroy-environment:
