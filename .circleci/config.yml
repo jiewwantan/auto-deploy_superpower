@@ -193,7 +193,9 @@ jobs:
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text >> .circleci/ansible/inventory.txt)
-            cat .circleci/ansible/inventory.txt        
+            cat .circleci/ansible/inventory.txt  
+            
+      
       - persist_to_workspace:
           root: ~/
           paths:
@@ -359,26 +361,28 @@ jobs:
     steps:
       - checkout 
       - run:
-          name: Smoke test backend
+          name: Get backend url and smoke test
           command: |
-            export BACKEND_IP=$(aws ec2 --region us-east-2 describe-instances \
-                  --filters Name=instance-state-name,Values=running Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7} \
-                  --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                  --output text)
-            echo "Backend IP: ${BACKEND_IP}"      
-            EC2_URL="http://${BACKEND_IP}:3030/api/status"
-            cat backend/.env
-            echo ${EC2_URL}
-            curl -s ${EC2_URL}
-            
-                       
+            # your code here
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            curl "${API_URL}/api/status"
+
       - run:
-          name: Smoke test frontend
+          name: Frontend smoke test.
           command: |
-            pwd
-            APP_URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-2.amazonaws.com/#/employee"
-            curl -s http://udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-2.amazonaws.com/#/employee
-      
+            # your code here         
+            URL="https://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3.ap-south-1.amazonaws.com/index.html#/employees"           
+            if curl -s ${URL} | grep "Welcome"
+            then
+              return 0
+            else
+              return 1
+            fi
       # Here's where you will add some code to rollback on failure  
       #- destroy-environment:
       #    workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"        
