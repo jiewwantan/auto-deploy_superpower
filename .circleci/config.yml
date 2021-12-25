@@ -214,11 +214,11 @@ jobs:
       # Checkout code from git
       - checkout
       # Add ssh keys with fingerprint
+      # attach workspace
+      - attach_workspace:
+          at: ~/
       - add_ssh_keys:
           fingerprints: ["ed:42:1e:ef:82:9b:e6:23:7a:2c:3a:48:e8:e5:1f:b2"]
-      # attach workspace
-      #- attach_workspace:
-      #    at:  ~/
 
       - run:
           name: Install dependencies
@@ -226,18 +226,24 @@ jobs:
             # Your code here
             # exit 1
             apk add --update ansible
+      - run:
+          name: Install AWS-CLI
+          command: |
+            pip install awscli
+      - run:
+          name: Install OpenSSH
+          command: |
+            apk add openssh-client
            
       - run:
           name: Configure server
           command: |
             # Your code here
             # exit 1
-            cat .circleci/ansible/inventory.txt
+            
             cd .circleci/ansible
-            aws ec2 describe-instances \
-            --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters "Name=tag:project,Values=udapeople" \
-            --output text >> inventory.txt
+            cat inventory.txt
+            
             ansible-playbook -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure  
       - destroy-environment:
