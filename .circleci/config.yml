@@ -217,8 +217,8 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["ed:42:1e:ef:82:9b:e6:23:7a:2c:3a:48:e8:e5:1f:b2"]
       # attach workspace
-      - attach_workspace:
-          at:  ~/
+      #- attach_workspace:
+      #    at:  ~/
 
       - run:
           name: Install dependencies
@@ -234,6 +234,10 @@ jobs:
             # exit 1
             cat .circleci/ansible/inventory.txt
             cd .circleci/ansible
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:project,Values=udapeople" \
+            --output text >> inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure  
       - destroy-environment:
