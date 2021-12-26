@@ -235,10 +235,10 @@ jobs:
           command: |
             apk add openssh-client
       
-      - run:
-          name: Install PM2
-          command: |
-            npm install pm2 -g
+      #- run:
+      #    name: Install PM2
+      #    command: |
+      #      npm install pm2 -g
            
       - run:
           name: Configure server
