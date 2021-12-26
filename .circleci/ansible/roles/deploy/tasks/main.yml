@@ -1,24 +1,53 @@
 ---
+- name: "install dependencies."
+  become: true
+  apt:
+    name: ["nodejs", "npm"]
+    state: latest
+    update_cache: yes
 
-- name: "extract artifact."
-  unarchive:
+- name: "install pm2"
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
+
+- name: Creates directory
+  file:
+    path: /home/ubuntu/backend
+    state: directory
+
+- name: Copy backend dist files web server
+  copy:
     src: /root/project/artifact.tar.gz
-    dest: /home/ubuntu/
+    dest: /home/ubuntu/backend/artifact.tar.gz
 
-- name: "stop app."
-  shell: pm2 stop default
-  ignore_errors: yes
-
-- name: "start app."
-  environment: 
-    TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}" 
-    TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}" 
-    TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}" 
-    TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}" 
-    TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}" 
-    TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
-    TYPEORM_ENTITIES: "./src/modules/**/*.entity.ts"
-    TYPEORM_MIGRATIONS: "./src/migrations/*.ts"
+- name: Uncompress Backend
   shell: |
+    cd /home/ubuntu/backend
+    tar xvzf artifact.tar.gz -C .
+    ls -la
+    
+- name: Install Node 
+  shell: |
+    cd /home/ubuntu/backend
     npm install
-    pm2 start npm -- start
+    npm install --only=dev
+- name: Build package
+  shell: |
+    cd /home/ubuntu/backend
+    npm run build
+    cat .env
+    npm run prestart:prod
+- name: Start PM2
+  shell: |
+    cd /home/ubuntu/backend 
+    pm2 stop default
+    pm2 start npm --name backend -- start
+- name: start pm2 for dist/main.js
+  become: no
+  shell: pm2 start main.js
+  args:
+    chdir: /home/ubuntu/backend/dist
