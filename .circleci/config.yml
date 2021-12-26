@@ -237,6 +237,7 @@ jobs:
            
       - run:
           name: Configure server
+          no_output_timeout: 20m
           command: |
             # Your code here
             # exit 1
