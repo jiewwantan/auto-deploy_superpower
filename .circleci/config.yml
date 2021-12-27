@@ -403,8 +403,9 @@ jobs:
               --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-            curl -s "${API_URL}/api/status"
             pm2 logs
+            curl -s "${API_URL}/api/status"
+            
 
       - run:
           name: Frontend smoke test.
