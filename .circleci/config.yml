@@ -332,9 +332,10 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update tar gzip ansible nodejs npm curl pm2
+            apk add --update tar gzip ansible nodejs npm curl
             pip install awscli 
             apk add --update openssh-client
+            npm install pm2 -g
             
       - attach_workspace:
           at: ~/
