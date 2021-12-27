@@ -332,10 +332,10 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update tar gzip ansible nodejs npm curl  
+            apk add --update tar gzip ansible nodejs npm curl pm2
             pip install awscli 
             apk add --update openssh-client
-            apt update && apt install sudo curl && curl -sL https://raw.githubusercontent.com/Unitech/pm2/master/packager/setup.deb.sh | sudo -E bash -
+            
       - attach_workspace:
           at: ~/
       - run:
