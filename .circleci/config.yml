@@ -234,6 +234,9 @@ jobs:
           name: Install OpenSSH
           command: |
             apk add openssh-client
+            apk add --update tar gzip ansible nodejs npm curl
+            npm install pm2 -g
+            
       
       #- run:
       #    name: Install PM2
@@ -381,8 +384,13 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update curl nodejs npm
-            pip install awscli
+            # apk add --update curl nodejs npm
+            # pip install awscli
+
+            apk add --update tar gzip ansible nodejs npm curl
+            pip install awscli 
+            apk add --update openssh-client
+            npm install pm2 -g
 
       
       - run:
@@ -396,6 +404,7 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             curl -s "${API_URL}/api/status"
+            pm2 logs
 
       - run:
           name: Frontend smoke test.
