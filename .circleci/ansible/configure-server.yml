@@ -9,6 +9,8 @@
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
     - record_host_keys: False
+  
+  environment:
     - ENVIRONMENT: "{{ lookup('env','ENVIRONMENT') }}"
     - NODE_ENV: "{{ lookup('env','NODE_ENV') }}"
     - TYPEORM_CONNECTION: "{{ lookup('env','TYPEORM_CONNECTION') }}"

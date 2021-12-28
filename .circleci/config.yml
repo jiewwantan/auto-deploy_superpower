@@ -243,8 +243,8 @@ jobs:
             # Your code here 
             cd .circleci/ansible/ 
             ansible-playbook -i inventory.txt configure-server.yml
-            environment:
-          ANSIBLE_HOST_KEY_CHECKING: false
+          environment:
+            ANSIBLE_HOST_KEY_CHECKING: false
       
       - run:
           name: Install node_exporter
