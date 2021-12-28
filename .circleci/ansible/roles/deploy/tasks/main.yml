@@ -1,42 +1,25 @@
 ---
-- name: "install dependencies."
+- name: Testing copy of the local to remote file
   become: true
-  apt:
-    name: "tar"
-    state: latest
-    update_cache: yes
-
-- name: Copy backend dist files to remote server
   copy:
-    src: /root/project/backend
-    dest: /home/ubuntu
+        src: artifact.tar.gz
+        dest: /home/ubuntu
 
-- name: Install Node modules
-  shell: |
-    cd /home/ubuntu/backend
-    npm install
-    npm install --only=dev
-    
-- name: Building backend service
-  shell: |
-    cd /home/ubuntu/backend
-    npm run build
-    npm run prestart:prod
-        
+- name: Creates directory
+  file:
+    path: /home/ubuntu/backend
+    state: directory
+
+- name: Extract 'artifact.tar.gz' into '/home/ubuntu/backend'
+  ansible.builtin.unarchive:
+    src: artifact.tar.gz
+    dest: /home/ubuntu/backend
+
 - name: Executing node
   become: true
-  shell: |
+  shell: |   
     cd /home/ubuntu/backend
-    pm2 start npm --name backend -- start
-    pm2 ls
-- name: Building node service
-  shell: |
-    cd /home/ubuntu/backend
-    npm run build
-    npm run prestart:prod
-    
-- name: start pm2 for dist/main.js
-  become: no
-  shell: pm2 start main.js
-  args:
-    chdir: /home/ubuntu/backend/dist
+    npm install
+    npm run build   
+    pm2 stop default
+    pm2 start npm --name "backend" -- start
