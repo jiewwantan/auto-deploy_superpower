@@ -1,6 +1,4 @@
 version: '2.1'
-orbs:
-  slack: circleci/slack@4.1
 
 commands:
   destroy-environment:
@@ -23,7 +21,9 @@ commands:
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
-      # Add parameter here  
+      # Add parameter here
+      event:
+        type: string
       workflow_id:
         type: string   
     steps:
@@ -41,7 +41,9 @@ commands:
             #  Add revert code here. You can find this in the Getting Started section.
             # exit 1
               npm run migration:revert
+              echo "roll back migration completed"
             fi
+              echo "Revert migrations finish..."
             
 jobs:
   build-frontend:
@@ -501,6 +503,7 @@ jobs:
               then
                 # your code here
               fi           
+
 
 workflows:
   default:
