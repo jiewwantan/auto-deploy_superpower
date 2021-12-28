@@ -16,7 +16,7 @@
 
 - name: Copy backend dist files web server
   copy:
-    src: backend_artifact.tar.gz
+    src: ../../backend_artifact.tar.gz
     dest: /home/ubuntu/backend_artifact.tar.gz
 
 - name: Uncompress Backend
