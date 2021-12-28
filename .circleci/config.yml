@@ -351,8 +351,8 @@ jobs:
           environment:
             ANSIBLE_HOST_KEY_CHECKING: false
   
-      #- destroy-environment:
-      #    workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"    
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"    
 
   deploy-frontend:
     docker:
@@ -503,11 +503,12 @@ jobs:
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             fi
+
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
-        workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations 
-        workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"   
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"   
         
   cleanup:
     docker:
@@ -542,9 +543,9 @@ jobs:
             fi
         # Here's where you will add some code to rollback on failure
       - destroy-environment:
-        workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations 
-        workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
            
 workflows:
   default:
