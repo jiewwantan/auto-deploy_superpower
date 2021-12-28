@@ -16,13 +16,13 @@
 
 - name: Copy backend dist files web server
   copy:
-    src: ../../backend_artifact.tar.gz
-    dest: /home/ubuntu/backend_artifact.tar.gz
+    src: .circleci/ansible/artifact.tar.gz
+    dest: /home/ubuntu/artifact.tar.gz
 
 - name: Uncompress Backend
   shell: |
     cd /home/ubuntu/
-    tar xvzf backend_artifact.tar.gz -C .
+    tar xvzf artifact.tar.gz -C .
     ls -la
     
 - name: Install Node 
