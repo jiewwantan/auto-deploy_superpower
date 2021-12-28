@@ -1,46 +1,25 @@
 ---
-- name: "install pm2"
+- name: Testing copy of the local to remote file
   become: true
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present
+  copy:
+        src: artifact.tar.gz
+        dest: /home/ubuntu
 
 - name: Creates directory
   file:
     path: /home/ubuntu/backend
     state: directory
 
-- name: Copy backend dist files web server
-  copy:
-    src: /root/project/artifact.tar.gz
-    dest: /home/ubuntu/backend/artifact.tar.gz
+- name: Extract 'artifact.tar.gz' into '/home/ubuntu/backend'
+  ansible.builtin.unarchive:
+    src: artifact.tar.gz
+    dest: /home/ubuntu/backend
 
-- name: Uncompress Backend
-  shell: |
-    cd /home/ubuntu/backend
-    tar xvzf artifact.tar.gz -C .
-    ls -la
-    
-- name: Install Node 
-  shell: |
+- name: Executing node
+  become: true
+  shell: |   
     cd /home/ubuntu/backend
     npm install
-    npm install --only=dev
-- name: Build package
-  shell: |
-    cd /home/ubuntu/backend
     npm run build
-    cat .env
-    npm run prestart:prod
-- name: Start PM2
-  shell: |
-    cd /home/ubuntu/backend 
     pm2 stop default
-    pm2 start npm --name backend -- start
-- name: start pm2 for dist/main.js
-  become: no
-  shell: pm2 start main.js
-  args:
-    chdir: /home/ubuntu/backend/dist
+    pm2 start npm --name "backend" -- start
