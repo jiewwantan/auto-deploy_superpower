@@ -1,7 +1,7 @@
 ---
 - name: " Deploy backend configuration." 
   hosts: web
-  user: ubunt
+  user: ubuntu
   gather_facts: false
   vars:
     - ansible_python_interpreter: /usr/bin/python3
