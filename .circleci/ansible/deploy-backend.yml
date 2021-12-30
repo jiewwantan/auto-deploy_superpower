@@ -1,13 +1,13 @@
 ---
 - name: " Deploy backend configuration." 
   hosts: web
-  user: ubuntu
+  user: ubunt
   gather_facts: false
   vars:
     - ansible_python_interpreter: /usr/bin/python3
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
-    - record_host_keys: False
+    - record_host_keys: false
 
   environment:   
     - TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"
