@@ -54,3 +54,4 @@
   shell: pm2 start main.js
   args:
     chdir: /home/ubuntu/backend/dist
+
