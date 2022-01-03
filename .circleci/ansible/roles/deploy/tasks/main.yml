@@ -19,7 +19,6 @@
     path: /home/ubuntu/backend
     state: directory
 
-
 - name: Copy backend dist files web server
   ansible.builtin.unarchive:
     src: artifact.tar.gz
