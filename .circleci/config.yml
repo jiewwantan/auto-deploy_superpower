@@ -465,44 +465,33 @@ jobs:
 
   cloudfront-update:
     docker:
-      # Docker image here that supports AWS CLI
-      - image: python:3.7-alpine3.11
+      - image: amazon/aws-cli
     steps:
-      # Checkout code from git
       - checkout
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install dependencies
           command: |
-            # your code here
-            apk add --update curl nodejs npm
-            pip install awscli
+            yum -y install tar gzip
+      - run:
+          name: Get previous stackid for cleanup job
+          command: |
+            aws cloudformation \
+            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+              --region us-east-1 --no-paginate --output text > ~/project/.circleci/oldstackid.txt
       - run:
           name: Update cloudfront distribution
           command: |
-            # your code here
-            export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`OldWorkflowID\`].Value" --no-paginate --output text)
-            OldWorkflowID=${OldWorkflowID#udapeople-}
-            export CurrentWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
-            CurrentWorkflowID=${CurrentWorkflowID#udapeople-}
-            echo CurrentWorkflowID: "${CurrentWorkflowID}"
-            echo newWorkFlowId: "${CIRCLE_WORKFLOW_ID:0:7}"
-            echo OldWorkflowID: "${OldWorkflowID}"  
-                  
-            if [[ $OldWorkflowID = EMPTY ]] 
-            then             
-              echo "Oldworkflow is InitialStack"
-              OldWorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"                
-            else
-              OldWorkflowID=$CurrentWorkflowID
-            fi
-            
-            aws cloudformation deploy \
-              --template-file .circleci/files/cloudfront.yml \
-              --stack-name InitialStack \
-              --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" OldWorkflowID="${OldWorkflowID}" \
-              --tags project=udapeople
+            aws cloudformation update-stack \
+                --use-previous-template \
+                --stack-name project3primer \
+                --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7},UsePreviousValue=false
+      - run:
+          name: "output URL"
+          command: echo "udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3.amazonaws.com"
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/oldstackid.txt
 
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
