@@ -465,33 +465,28 @@ jobs:
 
   cloudfront-update:
     docker:
-      - image: amazon/aws-cli
+      # Docker image here that supports AWS CLI
+      - image: python:3.7-alpine3.11
     steps:
+      # Checkout code from git
       - checkout
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
-            yum -y install tar gzip
-      - run:
-          name: Get previous stackid for cleanup job
-          command: |
-            aws cloudformation \
-            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --region us-east-1 --no-paginate --output text > ~/project/.circleci/oldstackid.txt
+            # your code here
+            apk add --update curl nodejs npm
+            pip install awscli
       - run:
           name: Update cloudfront distribution
           command: |
-            aws cloudformation update-stack \
-                --use-previous-template \
-                --stack-name project3primer \
-                --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7},UsePreviousValue=false
-      - run:
-          name: "output URL"
-          command: echo "udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3.amazonaws.com"
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/.circleci/oldstackid.txt
+            # your code here
+            aws cloudformation deploy \
+              --template-file .circleci/files/cloudfront.yml \
+              --stack-name cloudfront \
+              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=udapeople
 
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
