@@ -1,6 +1,14 @@
 Description: >
   Cloudfront distribution for UdaPeople.
-
+Parameters:
+  WorkflowID:
+    Description: Unique identifier.
+    Type: String
+  
+  OldWorkflowID:
+    Description: Old workflow identifier.
+    Type: String
+    
 Resources:
   
   CloudFrontOriginAccessIdentity:
@@ -14,7 +22,7 @@ Resources:
     Properties:
       DistributionConfig:
         Origins:
-          - DomainName: !Sub "udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3.amazonaws.com"
+          - DomainName: !Sub "udapeople-${WorkflowID}.s3.amazonaws.com"
             Id: webpage
             S3OriginConfig:
               OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}"
@@ -25,3 +33,16 @@ Resources:
             QueryString: False
           TargetOriginId: webpage
           ViewerProtocolPolicy: allow-all
+
+Outputs:
+  WorkflowID:
+    Value: !Sub ${WorkflowID}
+    Description: Current Workflow Id
+    Export:
+      Name: WorkflowID
+  
+  OldWorkflowID:
+    Value: !Sub ${OldWorkflowID}
+    Description: Previous Workflow Id
+    Export:
+      Name: OldWorkflowID
