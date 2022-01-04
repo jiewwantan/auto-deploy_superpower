@@ -488,7 +488,7 @@ jobs:
               CurrentWorkflowID=${CurrentWorkflowID#udapeople-}
               echo CurrentWorkflowID: "${CurrentWorkflowID}"
               echo newWorkFlowId: "${CIRCLE_WORKFLOW_ID:0:7}"
-              echo OldWorkflowID: "${OldWorkflowID}"  
+                
                    
               if [[ $OldWorkflowID = EMPTY ]] 
               then             
@@ -497,7 +497,7 @@ jobs:
               else
                 OldWorkflowID=$CurrentWorkflowID
               fi
-              
+              echo OldWorkflowID: "${OldWorkflowID}"
               aws cloudformation deploy \
                 --template-file .circleci/files/cloudfront.yml \
                 --stack-name InitialStack \
